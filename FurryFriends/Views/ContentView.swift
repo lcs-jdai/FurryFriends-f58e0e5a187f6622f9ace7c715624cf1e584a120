@@ -24,7 +24,6 @@ struct ContentView: View {
     
     // MARK: Computed properties
     var body: some View {
-        
         VStack {
             
             // Shows the main image
@@ -78,7 +77,7 @@ struct ContentView: View {
             }
             
             List(favourites, id: \.self) { currentFavourite in
-                Text(currentFavourite.file)
+                RemoteImageView(fromURL: URL(string: currentImage.file)!)
             }
             
             Spacer()
