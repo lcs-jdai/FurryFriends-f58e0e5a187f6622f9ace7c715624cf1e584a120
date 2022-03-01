@@ -16,7 +16,7 @@ struct Cats: Decodable,Hashable,Encodable {
 
 
 struct Dogs: Decodable, Hashable, Encodable {
-     
+    
     let message: String
     let status: String
     
