@@ -10,58 +10,88 @@ import SwiftUI
 struct ContentView: View {
     
     // MARK: Stored properties
-    
     @Environment(\.scenePhase) var scenePhase
     
-    // Address for main image
-    // Starts as a transparent pixel – until an address for an animal's image is set
     @State var currentImage: Cats = Cats(file: "https://aws.random.cat/meow")
+    
+    @State var currentDog: Dogs = Dogs(message: "https://dog.ceo/api/breeds/image/random", status: "")
     
     @State var currentPetAddedToFavourites: Bool = false
     
-    @State var favourites: [Cats] = []
+    @State var currentDogAddedToFavourites: Bool = false
+    
+    @State var favourites: [PetComparison] = []
+    
+    
     
     
     // MARK: Computed properties
     var body: some View {
         VStack {
             
-            // Shows the main image
-            RemoteImageView(fromURL: URL(string: currentImage.file)!)
-            
-            
-            
-            
-            Image(systemName: "heart.circle")
-                .font(.largeTitle)
-            //                      CONDITION                        true   false
-                .foregroundColor(currentPetAddedToFavourites == true ? .red : .secondary)
-                .padding()
-                .onTapGesture {
+            HStack{
+                
+                VStack{
+                    // Shows the main image
+                    RemoteImageView(fromURL: URL(string: currentImage.file)!)
+                        .frame(width: 140, height: 140, alignment: .center)
+                        .scaledToFill()
+                        .clipped()
                     
-                    // Only add to the list if it is not already there
-                    if currentPetAddedToFavourites == false {
-                        
-                        // Adds the current joke to the list
-                        favourites.append(currentImage)
-                        
-                        // Record that we have marked this as a favourite
-                        currentPetAddedToFavourites = true
-                        
-                    }
-                    
+                    Image(systemName: "heart.circle")
+                        .font(.largeTitle)
+                        .foregroundColor(currentPetAddedToFavourites == true ? .red : .secondary)
+                        .padding()
+                        .onTapGesture {
+                            
+                            // Only add to the list if it is not already there
+                            if currentPetAddedToFavourites == false {
+                                
+                                // Adds the current joke to the list
+                                favourites.append(currentImage)
+                                
+                                // Record that we have marked this as a favourite
+                                currentPetAddedToFavourites = true
+                                
+                            }
+                            
+                        }
                 }
+                
+                VStack{
+                    RemoteImageView(fromURL: URL(string: currentDog.message)!)
+                        .frame(width: 140, height: 140, alignment: .center)
+                        .scaledToFill()
+                        .clipped()
+                    
+                    Image(systemName: "heart.circle")
+                        .font(.largeTitle)
+                        .foregroundColor(currentDogAddedToFavourites == true ? .red : .secondary)
+                        .padding()
+                        .onTapGesture {
+                            
+                            // Only add to the list if it is not already there
+                            if currentDogAddedToFavourites == false {
+                                
+                                // Adds the current joke to the list
+                                favourites.append(currentDog)
+                                
+                                // Record that we have marked this as a favourite
+                                currentDogAddedToFavourites = true
+                                
+                            }
+                            
+                        }
+                }
+            }
+            
+            
             
             Button(action: {
-                
-                // The Task type allows us to run asynchronous code
-                // within a button and have the user interface be updated
-                // when the data is ready.
-                // Since it is asynchronous, other tasks can run while
-                // we wait for the data to come back from the web server.
                 Task {
-                    // Call the function that will get us a new joke!
                     await loadNewPet()
+                    
+                    await loadNewDog()
                 }
             }, label: {
                 Text("Another one!")
@@ -77,18 +107,14 @@ struct ContentView: View {
             }
             
             List(favourites, id: \.self) { currentFavourite in
-                RemoteImageView(fromURL: URL(string: currentImage.file)!)
+                RemoteImageView(fromURL: URL(string: currentFavourite.file)!)
+            
             }
             
             Spacer()
             
-            
-            
-            // Push main image to top of screen
-            Spacer()
-            
         }
-        .navigationTitle("Furry Friend") // delete if you want no title
+        .navigationTitle("Furry Friend")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         // Runs once when the app is opened
@@ -133,21 +159,12 @@ struct ContentView: View {
             // Get the raw data from the endpoint
             let (data, _) = try await urlSession.data(for: request)
             
-            // Attempt to decode the raw data into a Swift structure
-            // Takes what is in "data" and tries to put it into "currentJoke"
-            //                                 DATA TYPE TO DECODE TO
-            //                                         |
-            //                                         V
             currentImage = try JSONDecoder().decode(Cats.self, from: data)
             
-            // Reset the flag that tracks whether the current joke
-            // is a favourite
             currentPetAddedToFavourites = false
             
         } catch {
             print("Could not retrieve or decode the JSON from endpoint.")
-            // Print the contents of the "error" constant that the do-catch block
-            // populates
             print(error)
         }
     }
@@ -212,6 +229,30 @@ struct ContentView: View {
             print(error.localizedDescription)
         }
         
+    }
+    
+    func loadNewDog() async {
+        let url = URL(string: "https://dog.ceo/api/breeds/image/random")!
+        
+        var request = URLRequest(url: url)
+        request.setValue("application/json",
+                         forHTTPHeaderField: "Accept")
+        
+        let urlSession = URLSession.shared
+        
+        do {
+            
+            // Get the raw data from the endpoint
+            let (data, _) = try await urlSession.data(for: request)
+            
+            currentDog = try JSONDecoder().decode(Dogs.self, from: data)
+            
+            currentDogAddedToFavourites = false
+            
+        } catch {
+            print("Could not retrieve or decode the JSON from endpoint.")
+            print(error)
+        }
     }
     
     

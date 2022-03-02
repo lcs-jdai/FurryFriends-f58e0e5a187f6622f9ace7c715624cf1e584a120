@@ -8,16 +8,20 @@
 import Foundation
 
 
-struct Cats: Decodable,Hashable,Encodable {
+struct Items: Decodable, Hashable, Encodable, Identifiable {
     
+    var id = UUID()
     let file: String
-    
-}
-
-
-struct Dogs: Decodable, Hashable, Encodable {
-    
     let message: String
     let status: String
     
+    
+
 }
+
+
+let PetComparison = [
+
+    Items(file: "https://aws.random.cat/meow", message: "https://dog.ceo/api/breeds/image/random", status: "")
+
+]
