@@ -20,7 +20,9 @@ struct ContentView: View {
     
     @State var currentDogAddedToFavourites: Bool = false
     
-    @State var favourites: [PetComparison] = []
+    @State var favourites: [Cats] = []
+    
+    @State var favouriteDogs: [Dogs] = []
     
     
     
@@ -74,7 +76,7 @@ struct ContentView: View {
                             if currentDogAddedToFavourites == false {
                                 
                                 // Adds the current joke to the list
-                                favourites.append(currentDog)
+                                favouriteDogs.append(currentDog)
                                 
                                 // Record that we have marked this as a favourite
                                 currentDogAddedToFavourites = true
@@ -108,6 +110,11 @@ struct ContentView: View {
             
             List(favourites, id: \.self) { currentFavourite in
                 RemoteImageView(fromURL: URL(string: currentFavourite.file)!)
+            
+            }
+            
+            List(favouriteDogs, id: \.self) { currentFavourite in
+                RemoteImageView(fromURL: URL(string: currentFavourite.message)!)
             
             }
             
